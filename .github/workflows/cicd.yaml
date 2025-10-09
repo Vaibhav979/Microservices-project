@@ -3,7 +3,7 @@ name: UserService CI/CD Pipeline
 on:
   push:
     paths:
-      - "UserService/**"
+      - "UserService/UserService/**"
 
 jobs:
   build:
