@@ -13,6 +13,8 @@ jobs:
       userservice: ${{ steps.filter.outputs.userservice }}
       hotelservice: ${{ steps.filter.outputs.hotelservice }}
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
       - uses: dorny/paths-filter@v3
         id: filter
         with:
