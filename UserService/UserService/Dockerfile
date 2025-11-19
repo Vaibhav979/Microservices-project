@@ -5,6 +5,9 @@ WORKDIR /app
 
 COPY . .
 
+# Make mvnw executable
+RUN chmod +x ./mvnw
+
 # Use Maven Wrapper (no apt-get, MUCH faster)
 RUN ./mvnw -B -DskipTests clean package
 
