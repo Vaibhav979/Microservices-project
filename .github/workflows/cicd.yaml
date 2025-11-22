@@ -62,7 +62,7 @@ jobs:
               --name userservice \
               --network microservices-net \
               -p 8081:8081 \
-              -e SPRING_DATASOURCE_URL=jdbc:mysql://mysqldb:3306/microservice_db \
+              -e SPRING_DATASOURCE_URL=jdbc:mysql://mysq:3306/microservice_db \
               -e SPRING_DATASOURCE_USERNAME=${{ secrets.DB_USER }} \
               -e SPRING_DATASOURCE_PASSWORD=${{ secrets.DB_PASSWORD }} \
               ${{ secrets.DOCKER_USERNAME }}/userservice:latest
