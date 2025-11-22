@@ -9,5 +9,5 @@ public class HotelServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HotelServiceApplication.class, args);
 	}
-	// testing ci/cd v1
+	// ci/cd
 }
