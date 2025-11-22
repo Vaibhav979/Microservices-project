@@ -9,5 +9,5 @@ public class HotelServiceApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(HotelServiceApplication.class, args);
 	}
-	// deploy 0.1
+	// deploy 0.2
 }
