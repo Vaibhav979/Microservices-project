@@ -4,6 +4,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.userService.UserService.entities.User;
+import com.userService.UserService.entities.Rating;
+import com.userService.UserService.external.services.RatingService;
 import com.userService.UserService.services.UserService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +25,9 @@ public class UserController {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    RatingService ratingService;
 
     @PostMapping()
     public ResponseEntity<User> saveUser(@RequestBody User user) {
@@ -47,6 +52,12 @@ public class UserController {
     public ResponseEntity<List<User>> getAllUser () {
         List<User> users = userService.getAllUser();
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping("/ratings")
+    public ResponseEntity<Rating> createUserRating(@RequestBody Rating rating) {
+        Rating createdRating = ratingService.createRating(rating);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdRating);
     }
 
 }
