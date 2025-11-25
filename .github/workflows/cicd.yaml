@@ -5,6 +5,7 @@ on:
     paths:
       - "UserService/UserService/**"
       - "HotelService/HotelService/**"
+      - "RatingService/RatingService/**"
 
 jobs:
   detect-changes:
@@ -12,6 +13,7 @@ jobs:
     outputs:
       userservice: ${{ steps.filter.outputs.userservice }}
       hotelservice: ${{ steps.filter.outputs.hotelservice }}
+      ratingservice: ${{ steps.filter.outputs.ratingservice }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -23,6 +25,8 @@ jobs:
               - 'UserService/UserService/**'
             hotelservice:
               - 'HotelService/HotelService/**'
+            ratingservice:
+              - 'RatingService/RatingService/**'
 
   # =========================
   #   USER SERVICE PIPELINE
@@ -31,11 +35,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.userservice == 'true'
     runs-on: ubuntu-latest
-
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-
+      - uses: actions/checkout@v3
       - name: Build & Push UserService Image
         run: |
           mvn -f UserService/UserService/pom.xml clean package -DskipTests
@@ -50,7 +51,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
           script: |
             docker network create microservices-net || true
 
@@ -74,10 +74,8 @@ jobs:
     needs: detect-changes
     if: needs.detect-changes.outputs.hotelservice == 'true'
     runs-on: ubuntu-latest
-
     steps:
       - uses: actions/checkout@v3
-
       - name: Build & Push HotelService Image
         run: |
           mvn -f HotelService/HotelService/pom.xml clean package -DskipTests
@@ -91,7 +89,6 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ${{ secrets.EC2_USER }}
           key: ${{ secrets.EC2_SSH_KEY }}
-
           script: |
             docker network create microservices-net || true
 
@@ -107,3 +104,42 @@ jobs:
               -e SPRING_DATASOURCE_USERNAME=${{ secrets.PG_USER }} \
               -e SPRING_DATASOURCE_PASSWORD=${{ secrets.PG_PASSWORD }} \
               ${{ secrets.DOCKER_USERNAME }}/hotelservice:latest
+
+  # =========================
+  #   RATING SERVICE PIPELINE
+  # =========================
+  rating-service:
+    needs: detect-changes
+    if: needs.detect-changes.outputs.ratingservice == 'true'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Build & Push RatingService Image
+        run: |
+          mvn -f RatingService/RatingService/pom.xml clean package -DskipTests
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/ratingservice:latest ./RatingService/RatingService
+          echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+          docker push ${{ secrets.DOCKER_USERNAME }}/ratingservice:latest
+
+      - name: Deploy RatingService to EC2
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+
+          script: |
+            docker network create microservices-net || true
+
+            docker pull ${{ secrets.DOCKER_USERNAME }}/ratingservice:latest
+            docker stop ratingservice || true
+            docker rm ratingservice || true
+
+            docker run -d \
+              --name ratingservice \
+              --network microservices-net \
+              -p 8083:8083 \
+              -e SPRING_DATA_MONGODB_URI=mongodb://mongodb:27017/rating_db \
+              ${{ secrets.DOCKER_USERNAME }}/ratingservice:latest
