@@ -18,6 +18,6 @@ public interface RatingService {
     @PostMapping("/ratings")
     Rating createRating(Rating rating);
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/ratings/users/{userId}")
     Rating[] getRatingsByUserId(@PathVariable String userId);
 }
