@@ -6,7 +6,7 @@ on:
       - "UserService/UserService/**"
       - "HotelService/HotelService/**"
       - "RatingService/RatingService/**"
-      - "ApiGateway/ApiGateway/**"
+      - "ApiGateway/**"
       - "RegistryService/RegistryService/**"
 
 jobs:
@@ -17,7 +17,7 @@ jobs:
       hotelservice: ${{ steps.filter.outputs.hotelservice }}
       ratingservice: ${{ steps.filter.outputs.ratingservice }}
       apigateway: ${{ steps.filter.outputs.apigateway }}
-      registryservice: ${{ steps.filter.outputs.regisrtyservice }}
+      registryservice: ${{ steps.filter.outputs.registryservice }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -32,9 +32,9 @@ jobs:
             ratingservice:
               - 'RatingService/RatingService/**'
             apigateway:
-              - 'ApiGateway/ApiGateway/**'
-            registryserivce:
-              - 'RegistryService/RegistryService/*'
+              - 'ApiGateway/**'
+            registryservice:
+              - 'RegistryService/RegistryService/**'
 
   # =========================
   #   USER SERVICE PIPELINE
@@ -203,8 +203,8 @@ jobs:
 
       - name: Build & Push ApiGateway Image
         run: |
-          mvn -f ApiGateway/ApiGateway/pom.xml clean package -DskipTests
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/apigateway:latest ./ApiGateway/ApiGateway
+          mvn -f ApiGateway/pom.xml clean package -DskipTests
+          docker build -t ${{ secrets.DOCKER_USERNAME }}/apigateway:latest ./ApiGateway
           echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
           docker push ${{ secrets.DOCKER_USERNAME }}/apigateway:latest
 
